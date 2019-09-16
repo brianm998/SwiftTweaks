@@ -54,8 +54,6 @@ internal final class TweakTableCell: UITableViewCell {
 		let textField = UITextField()
 		textField.textAlignment = .right
 		textField.returnKeyType = .done
-		textField.adjustsFontSizeToFitWidth = true
-		textField.minimumFontSize = 12
 		return textField
 	}()
 	private let disclosureArrow: UIImageView = {
@@ -86,9 +84,6 @@ internal final class TweakTableCell: UITableViewCell {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	private static let numberTextWidthFraction: CGFloat = 0.25 // The fraction of the cell's width used for the text field
-	private static let colorTextWidthFraction: CGFloat = 0.30
-	private static let stringTextWidthFraction: CGFloat = 0.60
 	private static let stringListValueLeadingPadding: CGFloat = 10 // Leading padding before the string list's value text field
 	private static let stringListTitleMaxWidthFraction: CGFloat = 0.7 // Maximum percent of the available space that the title can use when truncating the value
 	private static let horizontalPadding: CGFloat = 6 // Horiz. separation between stepper and text field
@@ -106,7 +101,7 @@ internal final class TweakTableCell: UITableViewCell {
 			return
 		}
 
-		switch viewData {
+  		switch viewData {
 		case .boolean:
 			switchControl.sizeToFit()
 			accessory.bounds = switchControl.bounds
@@ -114,12 +109,16 @@ internal final class TweakTableCell: UITableViewCell {
 		case .integer, .int8, .int16, .int32, .int64, .uInt8, .uInt16, .uInt32, .uInt64, .float, .doubleTweak:
 			stepperControl.sizeToFit()
 
+			var width = textField.intrinsicContentSize.width
+			let max: CGFloat = 40
+			if width > max { width = max } 
+            
 			let textFrame = CGRect(
-				origin: CGPoint.zero,
-				size: CGSize(
-					width: bounds.width * TweakTableCell.numberTextWidthFraction,
-					height: bounds.height
-				)
+   			  origin: CGPoint.zero,
+              size: CGSize(
+                width: width,
+                height: bounds.height
+              )
 			)
 
 			let stepperControlFrame = CGRect(
@@ -139,10 +138,10 @@ internal final class TweakTableCell: UITableViewCell {
 		case .color:
 			let textFrame = CGRect(
 				origin: CGPoint.zero,
-				size: CGSize(
-					width: bounds.width * TweakTableCell.colorTextWidthFraction,
-					height: bounds.height
-				)
+                size: CGSize(
+                  width: textField.intrinsicContentSize.width,
+                  height: bounds.height
+                )
 			)
 
 			let colorControlFrame = CGRect(
@@ -173,10 +172,10 @@ internal final class TweakTableCell: UITableViewCell {
 		case .string:
 			let textFrame = CGRect(
 				origin: .zero,
-				size: CGSize(
-					width: bounds.width * TweakTableCell.stringTextWidthFraction,
-					height: bounds.height
-				)
+                size: CGSize(
+                  width: textField.intrinsicContentSize.width,
+                  height: bounds.height
+                )
 			).integral
 			textField.frame = textFrame
 			accessory.bounds = textField.bounds
@@ -185,7 +184,7 @@ internal final class TweakTableCell: UITableViewCell {
 			let textFieldFrame = CGRect(
 				origin: .zero,
 				size: CGSize(
-					width: bounds.width * TweakTableCell.stringTextWidthFraction,
+                    width: textField.intrinsicContentSize.width,
 					height: bounds.height
 				)
 			).integral
@@ -253,7 +252,7 @@ internal final class TweakTableCell: UITableViewCell {
 			let textFieldDesiredWidth = textFieldContentWidth
 			textFieldWidth = min(textFieldGuaranteedAvailableWidth, textFieldDesiredWidth)
 		}
-		
+        
 		return CGRect(
 			origin: .zero,
 			size: CGSize(
