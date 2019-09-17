@@ -187,41 +187,49 @@ extension TweakColorEditViewController: UITableViewDataSource {
 
 extension TweakColorEditViewController: TweakColorCellDelegate {
 	func tweakColorCellDidChangeValue(_ cell: TweakColorCell) {
-		let changedValue = cell.viewData!
-
-		switch viewData {
-		case let .hex(hex: oldHex, alpha: oldAlpha):
-			switch changedValue {
-			case let .hexComponent(newHex):
-				viewData = .hex(hex: newHex, alpha: oldAlpha)
-			case let .numericalComponent(newNumber):
-				viewData = .hex(hex: oldHex, alpha: newNumber)
-			}
-		case let .rgBa(r: oldR, g: oldG, b: oldB, a: oldA):
-			switch changedValue.numericType! {
-			case .red:
-				viewData = .rgBa(r: changedValue.numericValue!, g: oldG, b: oldB, a: oldA)
-			case .green:
-				viewData = .rgBa(r: oldR, g: changedValue.numericValue!, b: oldB, a: oldA)
-			case .blue:
-				viewData = .rgBa(r: oldR, g: oldG, b: changedValue.numericValue!, a: oldA)
-			case .alpha:
-				viewData = .rgBa(r: oldR, g: oldG, b: oldB, a: changedValue.numericValue!)
-			case .hue, .saturation, .brightness:
-				break
-			}
-		case let .hsBa(h: oldH, s: oldS, b: oldB, a: oldA):
-			switch changedValue.numericType! {
-			case .hue:
-				viewData = .hsBa(h: changedValue.numericValue!, s: oldS, b: oldB, a: oldA)
-			case .saturation:
-				viewData = .hsBa(h: oldH, s: changedValue.numericValue!, b: oldB, a: oldA)
-			case .brightness:
-				viewData = .hsBa(h: oldH, s: oldS, b: changedValue.numericValue!, a: oldA)
-			case .alpha:
-				viewData = .hsBa(h: oldH, s: oldS, b: oldB, a: changedValue.numericValue!)
-			case .red, .green, .blue:
-				break
+		if let changedValue = cell.viewData {
+			switch viewData {
+			case let .hex(hex: oldHex, alpha: oldAlpha):
+				switch changedValue {
+				case let .hexComponent(newHex):
+					viewData = .hex(hex: newHex, alpha: oldAlpha)
+				case let .numericalComponent(newNumber):
+					viewData = .hex(hex: oldHex, alpha: newNumber)
+				}
+			case let .rgBa(r: oldR, g: oldG, b: oldB, a: oldA):
+				if let changedNumericType = changedValue.numericType,
+	               let changedNumericValue = changedValue.numericValue
+	            {
+					switch changedNumericType {
+					case .red:
+						viewData = .rgBa(r: changedNumericValue, g: oldG, b: oldB, a: oldA)
+					case .green:
+						viewData = .rgBa(r: oldR, g: changedNumericValue, b: oldB, a: oldA)
+					case .blue:
+						viewData = .rgBa(r: oldR, g: oldG, b: changedNumericValue, a: oldA)
+					case .alpha:
+						viewData = .rgBa(r: oldR, g: oldG, b: oldB, a: changedNumericValue)
+					case .hue, .saturation, .brightness:
+						break
+					}
+	            }
+			case let .hsBa(h: oldH, s: oldS, b: oldB, a: oldA):
+				if let changedNumericType = changedValue.numericType,
+	               let changedNumericValue = changedValue.numericValue
+	            {
+					switch changedNumericType {
+					case .hue:
+						viewData = .hsBa(h: changedNumericValue, s: oldS, b: oldB, a: oldA)
+					case .saturation:
+						viewData = .hsBa(h: oldH, s: changedNumericValue, b: oldB, a: oldA)
+					case .brightness:
+						viewData = .hsBa(h: oldH, s: oldS, b: changedNumericValue, a: oldA)
+					case .alpha:
+						viewData = .hsBa(h: oldH, s: oldS, b: oldB, a: changedNumericValue)
+					case .red, .green, .blue:
+						break
+					}
+				}                
 			}
 		}
 	}
