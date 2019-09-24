@@ -134,12 +134,14 @@ extension TweakCollectionViewController: UITableViewDelegate {
 			let stringOptionVC = StringOptionViewController(anyTweak: tweak, tweakStore: self.tweakStore, delegate: self)
 			self.navigationController?.pushViewController(stringOptionVC, animated: true)
 		case .action:
-			let actionTweak = tweak.tweak as! Tweak<TweakAction>
-			actionTweak.defaultValue.evaluateAllClosures()
-			self.hapticsPlayer.playNotificationSuccess()
+			if let actionTweak = tweak.tweak as? Tweak<TweakAction> {
+				actionTweak.defaultValue.evaluateAllClosures()
+				self.hapticsPlayer.playNotificationSuccess()
+			}
 		case .integer, .int8, .int16, .int32, .int64, .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double, .string:
-			let cell = tableView.cellForRow(at: indexPath) as! TweakTableCell
-			cell.startEditingTextField()
+			if let cell = tableView.cellForRow(at: indexPath) as? TweakTableCell {
+				cell.startEditingTextField()
+			}
 		case .date:
 			let datePickerVC = DatePickerViewController(anyTweak: tweak, tweakStore: self.tweakStore, delegate: self)
 			self.navigationController?.pushViewController(datePickerVC, animated: true)
@@ -355,7 +357,7 @@ fileprivate final class TweakGroupSectionHeader: UITableViewHeaderFooterView {
 	}
 
 	@objc private func floatingButtonTapped() {
-		if let delegate = deleate {
+		if let delegate = delegate {
 			delegate.tweakGroupSectionHeaderDidPressFloatingButton(self)
 		}
 	}
