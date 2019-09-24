@@ -355,6 +355,8 @@ fileprivate final class TweakGroupSectionHeader: UITableViewHeaderFooterView {
 	}
 
 	@objc private func floatingButtonTapped() {
-		delegate!.tweakGroupSectionHeaderDidPressFloatingButton(self)
+		if let delegate = deleate {
+			delegate.tweakGroupSectionHeaderDidPressFloatingButton(self)
+		}
 	}
 }
