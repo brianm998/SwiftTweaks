@@ -31,7 +31,7 @@ internal final class FloatingTweakGroupViewController: UIViewController {
 	static func editingSupported(forTweak tweak: AnyTweak) -> Bool {
 		switch tweak.tweakViewDataType {
 		case .boolean, .integer, .int8, .int16, .int32, .int64,
-             .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double, .action:
+			 .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double, .action:
 			return true
 		case .uiColor, .stringList, .string, .date:
 			return false
@@ -339,14 +339,57 @@ extension FloatingTweakGroupViewController: UITableViewDelegate {
 		switch tweak.tweakViewDataType {
 		case .action:
 			self.hapticsPlayer.playNotificationSuccess()
-			if let actionTweak = tweak.tweak as? Tweak<TweakAction> {            
+			if let actionTweak = tweak.tweak as? Tweak<TweakAction> {
 				actionTweak.defaultValue.evaluateAllClosures()
 			}
 		case .boolean, .cgFloat, .double, .integer, .int8, .int16, .int32, .int64,
-             .uInt8, .uInt16, .uInt32, .uInt64, .string, .stringList, .uiColor, .date:
+			 .uInt8, .uInt16, .uInt32, .uInt64, .string, .stringList, .uiColor, .date:
 			break
 		}
 		self.tableView.deselectRow(at: indexPath, animated: true)
+	}
+
+	@available(iOS 11.0, *)
+	public func tableView(_ tableView: UITableView, 
+						  trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration?
+	{
+		if let tweak = tweakAtIndexPath(indexPath) {
+
+			switch tweak.tweakViewDataType {
+
+			case .integer, .int8, .int16, .int32, .int64, .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double:
+
+				var title = ""
+				
+				switch self.tweakStore.editingStyle(forTweak: tweak) {
+				case .stepper:
+					title = "use slider"
+				case .slider:
+					title = "use stepper"
+				}
+				
+				let action = UIContextualAction(style: .destructive,
+												title: title)
+				{ action, view, handler in
+					switch self.tweakStore.editingStyle(forTweak: tweak) {
+					case .stepper:
+						self.tweakStore.set(editingStyle: .slider, forTweak: tweak)
+					case .slider:
+						self.tweakStore.set(editingStyle: .stepper, forTweak: tweak)
+					}
+					
+					self.tableView.reloadData()
+					handler(false)
+				}
+				action.backgroundColor = .green
+
+				return UISwipeActionsConfiguration(actions: [action]) // don't want the defaults
+			case .uiColor, .stringList, .action, .date, .boolean, .string:
+				break
+			}
+		}
+		
+		return UISwipeActionsConfiguration(actions: [])
 	}
 }
 

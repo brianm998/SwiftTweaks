@@ -134,6 +134,22 @@ public final class TweakStore {
 		}
 	}
 
+	fileprivate var editingStyles: [AnyTweak: NumericEditStyle] = [:]
+
+	internal func editingStyle(forTweak tweak: AnyTweak) -> NumericEditStyle {
+		if let style = editingStyles[tweak] {
+			return style
+		} else if let style = tweak.editStyle {
+			return style
+		} else {
+			return SwiftTweaks.defaultNumericEditingStyle
+		}
+	}
+
+	internal func set(editingStyle: NumericEditStyle, forTweak tweak: AnyTweak) {
+		editingStyles[tweak] = editingStyle
+	}
+	
 	internal func currentViewDataForTweak(_ tweak: AnyTweak) -> TweakViewData {
 		let cachedValue = persistence.persistedValueForTweakIdentifiable(tweak)
 
@@ -141,39 +157,39 @@ public final class TweakStore {
 		case let .boolean(defaultValue: defaultValue):
 			let currentValue = cachedValue as? Bool ?? defaultValue
 			return .boolean(value: currentValue, defaultValue: defaultValue)
-		case let .integer(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+		case let .integer(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Int ?? defaultValue
-			return .integer(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .int8(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .integer(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .int8(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Int8 ?? defaultValue
-			return .int8(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .int16(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .int8(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .int16(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Int16 ?? defaultValue
-			return .int16(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .int32(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .int16(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .int32(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Int32 ?? defaultValue
-			return .int32(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .int64(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .int32(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .int64(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Int64 ?? defaultValue
-			return .int64(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .uInt8(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .int64(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .uInt8(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? UInt8 ?? defaultValue
-			return .uInt8(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .uInt16(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .uInt8(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .uInt16(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? UInt16 ?? defaultValue
-			return .uInt16(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .uInt32(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .uInt16(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .uInt32(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? UInt32 ?? defaultValue
-			return .uInt32(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .uInt64(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .uInt32(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .uInt64(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? UInt64 ?? defaultValue
-			return .uInt64(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .float(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .uInt64(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .float(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? CGFloat ?? defaultValue
-			return .float(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
-		case let .doubleTweak(defaultValue: defaultValue, min: min, max: max, stepSize: step):
+			return .float(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
+		case let .doubleTweak(defaultValue: defaultValue, min: min, max: max, stepSize: step, _):
 			let currentValue = cachedValue as? Double ?? defaultValue
-			return .doubleTweak(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step)
+			return .doubleTweak(value: currentValue, defaultValue: defaultValue, min: min, max: max, stepSize: step, editStyle: self.editingStyle(forTweak: tweak))
 		case let .color(defaultValue: defaultValue):
 			let currentValue = cachedValue as? UIColor ?? defaultValue
 			return .color(value: currentValue, defaultValue: defaultValue)

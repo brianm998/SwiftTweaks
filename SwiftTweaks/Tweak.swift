@@ -22,9 +22,18 @@ public struct Tweak<T: TweakableType> {
 	internal let maximumValue: T?	// Only supported for T: Comparable
 	internal let stepSize: T?		// Only supported for T: Comparable
 	internal let options: [T]?		// Only supported for T: StringOption
+	public let editStyle: NumericEditStyle? // Only supported for T: Numeric 
 
-	internal init(collectionName: String, groupName: String, tweakName: String, defaultValue: T, minimumValue: T? = nil, maximumValue: T? = nil, stepSize: T? = nil, options: [T]? = nil) {
-
+	internal init(collectionName: String,
+				  groupName: String,
+				  tweakName: String,
+				  defaultValue: T,
+				  minimumValue: T? = nil,
+				  maximumValue: T? = nil,
+				  stepSize: T? = nil,
+				  options: [T]? = nil,
+				  editStyle: NumericEditStyle? = nil)
+	{
 		[collectionName, groupName, tweakName].forEach {
 			if $0.contains(TweakIdentifierSeparator) {
 				assertionFailure("The substring `\(TweakIdentifierSeparator)` can't be used in a tweak name, group name, or collection name.")
@@ -39,6 +48,7 @@ public struct Tweak<T: TweakableType> {
 		self.maximumValue = maximumValue
 		self.stepSize = stepSize
 		self.options = options
+		self.editStyle = editStyle
 	}
 }
 
@@ -69,8 +79,15 @@ extension Tweak where T: Comparable {
 	/// Creates a Tweak<T> where T: Comparable
 	/// You can optionally provide a min / max / stepSize to restrict the bounds and behavior of a tweak.
 	/// The step size is "how much does the value change when I tap the UIStepper"
-	public init(_ collectionName: String, _ groupName: String, _ tweakName: String, defaultValue: T, min minimumValue: T? = nil, max maximumValue: T? = nil, stepSize: T? = nil) {
-
+	public init(_ collectionName: String,
+				_ groupName: String,
+				_ tweakName: String,
+				defaultValue: T,
+				min minimumValue: T? = nil,
+				max maximumValue: T? = nil,
+				stepSize: T? = nil,
+				editStyle: NumericEditStyle? = nil)
+	{
 		// Assert that the tweak's defaultValue is between its min and max (if they exist)
 		if clip(defaultValue, minimumValue, maximumValue) != defaultValue {
 			assertionFailure("A tweak's default value must be between its min and max. Your tweak \"\(tweakName)\" doesn't meet this requirement.")
@@ -83,7 +100,8 @@ extension Tweak where T: Comparable {
 			defaultValue: defaultValue,
 			minimumValue: minimumValue,
 			maximumValue: maximumValue,
-			stepSize: stepSize
+			stepSize: stepSize,
+			editStyle: editStyle
 		)
 	}
 }
@@ -134,77 +152,88 @@ extension Tweak: TweakType {
 				defaultValue: defaultValue as! Int,
 				min: minimumValue as? Int,
 				max: maximumValue as? Int,
-				stepSize: stepSize as? Int
+				stepSize: stepSize as? Int,
+				editStyle: editStyle
 			)
 		case .int8:
 			return .int8(
 				defaultValue: defaultValue as! Int8,
 				min: minimumValue as? Int8,
 				max: maximumValue as? Int8,
-				stepSize: stepSize as? Int8
+				stepSize: stepSize as? Int8,
+				editStyle: editStyle
 			)
 		case .int16:
 			return .int16(
 				defaultValue: defaultValue as! Int16,
 				min: minimumValue as? Int16,
 				max: maximumValue as? Int16,
-				stepSize: stepSize as? Int16
+				stepSize: stepSize as? Int16,
+				editStyle: editStyle
 			)
 		case .int32:
 			return .int32(
 				defaultValue: defaultValue as! Int32,
 				min: minimumValue as? Int32,
 				max: maximumValue as? Int32,
-				stepSize: stepSize as? Int32
+				stepSize: stepSize as? Int32,
+				editStyle: editStyle
 			)
 		case .int64:
 			return .int64(
 				defaultValue: defaultValue as! Int64,
 				min: minimumValue as? Int64,
 				max: maximumValue as? Int64,
-				stepSize: stepSize as? Int64
+				stepSize: stepSize as? Int64,
+				editStyle: editStyle
 			)
 		case .uInt8:
 			return .uInt8(
 				defaultValue: defaultValue as! UInt8,
 				min: minimumValue as? UInt8,
 				max: maximumValue as? UInt8,
-				stepSize: stepSize as? UInt8
+				stepSize: stepSize as? UInt8,
+				editStyle: editStyle
 			)
 		case .uInt16:
 			return .uInt16(
 				defaultValue: defaultValue as! UInt16,
 				min: minimumValue as? UInt16,
 				max: maximumValue as? UInt16,
-				stepSize: stepSize as? UInt16
+				stepSize: stepSize as? UInt16,
+				editStyle: editStyle
 			)
 		case .uInt32:
 			return .uInt32(
 				defaultValue: defaultValue as! UInt32,
 				min: minimumValue as? UInt32,
 				max: maximumValue as? UInt32,
-				stepSize: stepSize as? UInt32
+				stepSize: stepSize as? UInt32,
+				editStyle: editStyle
 			)
 		case .uInt64:
 			return .uInt64(
 				defaultValue: defaultValue as! UInt64,
 				min: minimumValue as? UInt64,
 				max: maximumValue as? UInt64,
-				stepSize: stepSize as? UInt64
+				stepSize: stepSize as? UInt64,
+				editStyle: editStyle
 			)
 		case .cgFloat:
 			return .float(
 				defaultValue: defaultValue as! CGFloat,
 				min: minimumValue as? CGFloat,
 				max: maximumValue as? CGFloat,
-				stepSize: stepSize as? CGFloat
+				stepSize: stepSize as? CGFloat,
+				editStyle: editStyle
 			)
 		case .double:
 			return .doubleTweak(
 				defaultValue: defaultValue as! Double,
 				min: minimumValue as? Double,
 				max: maximumValue as? Double,
-				stepSize: stepSize as? Double
+				stepSize: stepSize as? Double,
+				editStyle: editStyle
 			)
 		case .uiColor:
 			return .color(defaultValue: defaultValue as! UIColor)

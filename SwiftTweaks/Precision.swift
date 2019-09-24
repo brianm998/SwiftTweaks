@@ -40,8 +40,12 @@ internal protocol Roundable {
 extension Roundable {
 	func stringValueRoundedToNearest(_ precisionLevel: PrecisionLevel) -> String {
 		let numberFormatter = NumberFormatter()
+		numberFormatter.paddingCharacter = "0"
+		numberFormatter.paddingPosition = .beforePrefix
+		numberFormatter.minimumIntegerDigits = 1
 		numberFormatter.maximumFractionDigits = precisionLevel.maximumFractionDigits
-        return numberFormatter.string(from: NSNumber(value: doubleValue))!
+		numberFormatter.minimumFractionDigits = precisionLevel.maximumFractionDigits
+		return numberFormatter.string(from: NSNumber(value: doubleValue))!
 	}
 }
 
@@ -52,7 +56,7 @@ extension Double: Roundable {
 		// I'd tried using Foundation's NSDecimalNumberHandler, but it wasn't working out as well!
 		// This is goofy, but it works:
 		// For .Thousandth, multiply times 1000, then round, then divide by 1000. Boom! Rounded to the required precision value.
-        return Double((doubleValue / precisionLevel.precision).rounded()) * precisionLevel.precision
+		return Double((doubleValue / precisionLevel.precision).rounded()) * precisionLevel.precision
 	}
 }
 
