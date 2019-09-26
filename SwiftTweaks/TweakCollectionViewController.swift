@@ -223,7 +223,7 @@ extension TweakCollectionViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return tweakCollection.sortedTweakGroups[section].tweaks.count
 	}
-
+    
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let tweak = tweakAtIndexPath(indexPath)
 

@@ -42,6 +42,10 @@ extension TweakType {
 	var tweakIdentifier: String {
 		return "\(collectionName)\(TweakIdentifierSeparator)\(groupName)\(TweakIdentifierSeparator)\(tweakName)"
 	}
+
+    public var isColor: Bool {
+        return tweak.tweakViewDataType == .uiColor
+    }
 }
 
 extension AnyTweak: Hashable {

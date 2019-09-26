@@ -36,7 +36,7 @@ internal final class TweakTableCell: UITableViewCell {
 	internal var isInFloatingTweakGroupWindow = false
 
 	private var accessory = UIView()
-	
+
 	private let switchControl: UISwitch = {
 		let switchControl = UISwitch()
 		switchControl.onTintColor = AppTheme.Colors.controlTinted
@@ -59,6 +59,7 @@ internal final class TweakTableCell: UITableViewCell {
 		view.layer.cornerRadius = 4
 		return view
 	}()
+
 	private let textField: UITextField = {
 		let textField = UITextField()
 		textField.textAlignment = .right
@@ -66,7 +67,7 @@ internal final class TweakTableCell: UITableViewCell {
 		textField.adjustsFontSizeToFitWidth = true
 		return textField
 	}()
-	
+
 	private let disclosureArrow: UIImageView = {
 		let disclosureArrowImage = UIImage(swiftTweaksImage: .disclosureIndicator)
 		let imageView = UIImageView(image: disclosureArrowImage.withRenderingMode(.alwaysTemplate))
@@ -104,7 +105,7 @@ internal final class TweakTableCell: UITableViewCell {
 	private static let colorChitSize = CGSize(width: 29, height: 29)
 
 	override func layoutSubviews() {
-
+        
 		defer {
 			// After adjusting the accessoryView's frame, we need to call super.layoutSubviews()
 			super.layoutSubviews()
@@ -149,8 +150,6 @@ internal final class TweakTableCell: UITableViewCell {
 				size: slider.bounds.size
 			)
 			slider.frame = sliderFrame
-
-			// check the width of the textLabel
 
 			if !stepperControl.isHidden {
 				accessory.bounds = textFrame.union(stepperControlFrame).integral

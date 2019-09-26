@@ -30,10 +30,10 @@ internal final class FloatingTweakGroupViewController: UIViewController {
 
 	static func editingSupported(forTweak tweak: AnyTweak) -> Bool {
 		switch tweak.tweakViewDataType {
-		case .boolean, .integer, .int8, .int16, .int32, .int64,
+		case .uiColor, .boolean, .integer, .int8, .int16, .int32, .int64,
 			 .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double, .action:
 			return true
-		case .uiColor, .stringList, .string, .date:
+		case .stringList, .string, .date:
 			return false
 		}
 	}
@@ -327,6 +327,7 @@ extension FloatingTweakGroupViewController: UIGestureRecognizerDelegate {
 // MARK: Table View
 
 extension FloatingTweakGroupViewController: UITableViewDelegate {
+    
 	@objc func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		guard let tweak = tweakAtIndexPath(indexPath) else { return }
 
@@ -343,7 +344,7 @@ extension FloatingTweakGroupViewController: UITableViewDelegate {
 				actionTweak.defaultValue.evaluateAllClosures()
 			}
 		case .boolean, .cgFloat, .double, .integer, .int8, .int16, .int32, .int64,
-			 .uInt8, .uInt16, .uInt32, .uInt64, .string, .stringList, .uiColor, .date:
+			 .uiColor, .uInt8, .uInt16, .uInt32, .uInt64, .string, .stringList,  .date:
 			break
 		}
 		self.tableView.deselectRow(at: indexPath, animated: true)
@@ -404,20 +405,45 @@ extension FloatingTweakGroupViewController: UITableViewDataSource {
 		return 1
 	}
 
+    func tableView(_ tableView: UITableView, 
+                   heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+		if let tweak = tweakAtIndexPath(indexPath), tweak.isColor {
+            return 130       // XXX hardcoded constant
+        } else {
+            return UITableView.automaticDimension
+        }
+    }
+    
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-		let cell = tableView.dequeueReusableCell(withIdentifier: FloatingTweakGroupViewController.TweakTableViewCellIdentifer, for: indexPath) as! TweakTableCell
+		if let tweak = tweakAtIndexPath(indexPath) {
+            if tweak.isColor {
+                // XXX dequeue one of these cells too
+                let cell = FloatingColorTweakTableCell(style: .`default`, reuseIdentifier: nil)
+                cell.anyTweak = tweak
+		        cell.tweakStore = tweakStore
+		        cell.backgroundColor = .clear
+		        cell.contentView.backgroundColor = .clear
 
-		let tweak = tweakAtIndexPath(indexPath)!
-
-		cell.textLabel?.text = tweak.tweakName
-		cell.isInFloatingTweakGroupWindow = true
-		cell.viewData = tweakStore.currentViewDataForTweak(tweak)
-		cell.delegate = self
-		cell.backgroundColor = .clear
-		cell.contentView.backgroundColor = .clear
-
-		return cell
+                //XXX FIX THIS
+		        //cell.viewData = tweakStore.currentViewDataForTweak(tweak)
+                //XXX FIX THIS
+                
+                return cell
+            } else {
+		        if let cell = tableView.dequeueReusableCell(withIdentifier: FloatingTweakGroupViewController.TweakTableViewCellIdentifer, for: indexPath) as? TweakTableCell {
+		            cell.textLabel?.text = tweak.tweakName
+		            cell.isInFloatingTweakGroupWindow = true
+		            cell.viewData = tweakStore.currentViewDataForTweak(tweak)
+		            cell.delegate = self
+		            cell.backgroundColor = .clear
+		            cell.contentView.backgroundColor = .clear
+		            return cell
+                }
+            }
+        } 
+        return UITableViewCell(style: .`default`, reuseIdentifier: nil)
 	}
 
 	fileprivate func tweakAtIndexPath(_ indexPath: IndexPath) -> AnyTweak? {
