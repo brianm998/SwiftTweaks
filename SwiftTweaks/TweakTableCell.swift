@@ -54,9 +54,10 @@ internal final class TweakTableCell: UITableViewCell {
 		return UISlider()
 	}()
 	
-	private let colorChit: UIView = {
-		let view = UIView()
+	private let colorChit: ColorPreview = {
+		let view = ColorPreview()
 		view.layer.cornerRadius = 4
+		view.clipsToBounds = true
 		return view
 	}()
 
@@ -428,7 +429,7 @@ internal final class TweakTableCell: UITableViewCell {
 			}
 
 		case let .color(value: value, _):
-			colorChit.backgroundColor = value
+			colorChit.color = value
 			textField.text = value.hexString
 			textFieldEnabled = false
 

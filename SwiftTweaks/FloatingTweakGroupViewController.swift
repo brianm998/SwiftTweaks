@@ -130,8 +130,10 @@ internal final class FloatingTweakGroupViewController: UIViewController {
 		let tableView = UITableView(frame: .zero, style: .plain)
 		tableView.backgroundColor = .clear
 		tableView.register(TweakTableCell.self, forCellReuseIdentifier: FloatingTweakGroupViewController.TweakTableViewCellIdentifer)
+		tableView.register(FloatingColorTweakTableCell.self, forCellReuseIdentifier: FloatingTweakGroupViewController.TweakTableViewColorCellIdentifer)
 		tableView.contentInset = UIEdgeInsets(top: FloatingTweakGroupViewController.navBarHeight, left: 0, bottom: 0, right: 0)
 		tableView.separatorColor = AppTheme.Colors.tableSeparator
+
 		return tableView
 	}()
 
@@ -327,7 +329,7 @@ extension FloatingTweakGroupViewController: UIGestureRecognizerDelegate {
 // MARK: Table View
 
 extension FloatingTweakGroupViewController: UITableViewDelegate {
-    
+
 	@objc func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		guard let tweak = tweakAtIndexPath(indexPath) else { return }
 
@@ -396,6 +398,7 @@ extension FloatingTweakGroupViewController: UITableViewDelegate {
 
 extension FloatingTweakGroupViewController: UITableViewDataSource {
 	fileprivate static let TweakTableViewCellIdentifer = "TweakTableViewCellIdentifer"
+	fileprivate static let TweakTableViewColorCellIdentifer = "TweakTableViewColorCellIdentifer"
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return tweakGroup?.tweaks.count ?? 0
@@ -405,45 +408,40 @@ extension FloatingTweakGroupViewController: UITableViewDataSource {
 		return 1
 	}
 
-    func tableView(_ tableView: UITableView, 
-                   heightForRowAt indexPath: IndexPath) -> CGFloat
-    {
+	func tableView(_ tableView: UITableView, 
+				   heightForRowAt indexPath: IndexPath) -> CGFloat
+	{
 		if let tweak = tweakAtIndexPath(indexPath), tweak.isColor {
-            return 130       // XXX hardcoded constant
-        } else {
-            return UITableView.automaticDimension
-        }
-    }
-    
+			return FloatingColorTweakTableCell.height
+		} else {
+			return UITableView.automaticDimension
+		}
+	}
+	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
 		if let tweak = tweakAtIndexPath(indexPath) {
-            if tweak.isColor {
-                // XXX dequeue one of these cells too
-                let cell = FloatingColorTweakTableCell(style: .`default`, reuseIdentifier: nil)
-                cell.anyTweak = tweak
-		        cell.tweakStore = tweakStore
-		        cell.backgroundColor = .clear
-		        cell.contentView.backgroundColor = .clear
-
-                //XXX FIX THIS
-		        //cell.viewData = tweakStore.currentViewDataForTweak(tweak)
-                //XXX FIX THIS
-                
-                return cell
-            } else {
-		        if let cell = tableView.dequeueReusableCell(withIdentifier: FloatingTweakGroupViewController.TweakTableViewCellIdentifer, for: indexPath) as? TweakTableCell {
-		            cell.textLabel?.text = tweak.tweakName
-		            cell.isInFloatingTweakGroupWindow = true
-		            cell.viewData = tweakStore.currentViewDataForTweak(tweak)
-		            cell.delegate = self
-		            cell.backgroundColor = .clear
-		            cell.contentView.backgroundColor = .clear
-		            return cell
-                }
-            }
-        } 
-        return UITableViewCell(style: .`default`, reuseIdentifier: nil)
+			if tweak.isColor {
+				if let cell = tableView.dequeueReusableCell(withIdentifier: FloatingTweakGroupViewController.TweakTableViewColorCellIdentifer, for: indexPath) as? FloatingColorTweakTableCell {
+					cell.anyTweak = tweak
+					cell.tweakStore = tweakStore
+					cell.backgroundColor = .clear
+					cell.contentView.backgroundColor = .clear
+					return cell
+				}
+			} else {
+				if let cell = tableView.dequeueReusableCell(withIdentifier: FloatingTweakGroupViewController.TweakTableViewCellIdentifer, for: indexPath) as? TweakTableCell {
+					cell.textLabel?.text = tweak.tweakName
+					cell.isInFloatingTweakGroupWindow = true
+					cell.viewData = tweakStore.currentViewDataForTweak(tweak)
+					cell.delegate = self
+					cell.backgroundColor = .clear
+					cell.contentView.backgroundColor = .clear
+					return cell
+				}
+			}
+		} 
+		return UITableViewCell(style: .`default`, reuseIdentifier: nil)
 	}
 
 	fileprivate func tweakAtIndexPath(_ indexPath: IndexPath) -> AnyTweak? {
