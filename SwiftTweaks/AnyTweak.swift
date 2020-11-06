@@ -15,7 +15,7 @@ public struct AnyTweak: TweakType {
 	public var collectionName: String { return tweak.collectionName }
 	public var groupName: String { return tweak.groupName }
 	public var tweakName: String { return tweak.tweakName }
-
+	public var editStyle: NumericEditStyle? { return tweak.editStyle  }
 	public var tweakViewDataType: TweakViewDataType { return tweak.tweakViewDataType }
 	public var tweakDefaultData: TweakDefaultData { return tweak.tweakDefaultData }
 
@@ -34,12 +34,18 @@ public protocol TweakType: TweakClusterType {
 
 	var tweakViewDataType: TweakViewDataType { get }
 	var tweakDefaultData: TweakDefaultData { get }
+
+	var editStyle: NumericEditStyle? { get }
 }
 
 extension TweakType {
 	var tweakIdentifier: String {
 		return "\(collectionName)\(TweakIdentifierSeparator)\(groupName)\(TweakIdentifierSeparator)\(tweakName)"
 	}
+
+    public var isColor: Bool {
+        return tweak.tweakViewDataType == .uiColor
+    }
 }
 
 extension AnyTweak: Hashable {
@@ -61,4 +67,9 @@ extension AnyTweak: TweakIdentifiable {
 /// Extend AnyTweak to support easy initialization of a TweakStore
 extension AnyTweak: TweakClusterType {
 	public var tweakCluster: [AnyTweak] { return [self] }
+}
+
+public enum NumericEditStyle {
+	case stepper
+	case slider
 }

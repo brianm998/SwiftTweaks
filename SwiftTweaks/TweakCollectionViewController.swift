@@ -44,7 +44,7 @@ internal final class TweakCollectionViewController: UIViewController {
 	}
 
 	required init?(coder aDecoder: NSCoder) {
-	    fatalError("init(coder:) has not been implemented")
+		fatalError("init(coder:) has not been implemented")
 	}
 
 	deinit {
@@ -119,7 +119,6 @@ internal final class TweakCollectionViewController: UIViewController {
 	// MARK: Table Cells
 
 	fileprivate static let TweakTableViewCellIdentifer = "TweakTableViewCellIdentifer"
-
 }
 
 extension TweakCollectionViewController: UITableViewDelegate {
@@ -135,36 +134,84 @@ extension TweakCollectionViewController: UITableViewDelegate {
 			let stringOptionVC = StringOptionViewController(anyTweak: tweak, tweakStore: self.tweakStore, delegate: self)
 			self.navigationController?.pushViewController(stringOptionVC, animated: true)
 		case .action:
-			let actionTweak = tweak.tweak as! Tweak<TweakAction>
-			actionTweak.defaultValue.evaluateAllClosures()
-			self.hapticsPlayer.playNotificationSuccess()
+			if let actionTweak = tweak.tweak as? Tweak<TweakAction> {
+				actionTweak.defaultValue.evaluateAllClosures()
+				self.hapticsPlayer.playNotificationSuccess()
+			}
 		case .integer, .int8, .int16, .int32, .int64, .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double, .string:
-			let cell = tableView.cellForRow(at: indexPath) as! TweakTableCell
-			cell.startEditingTextField()
+			if let cell = tableView.cellForRow(at: indexPath) as? TweakTableCell {
+				cell.startEditingTextField()
+			}
+		case .date:
+			let datePickerVC = DatePickerViewController(anyTweak: tweak, tweakStore: self.tweakStore, delegate: self)
+			self.navigationController?.pushViewController(datePickerVC, animated: true)
 		case .boolean:
 			break
 		}
 	}
-    
-    private static let sectionFooterHeight: CGFloat = 27
-    
-    internal func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return TweakCollectionViewController.sectionFooterHeight
-    }
-    
-    internal func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return TweakGroupSectionHeader.height
-    }
-    
-    internal func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: TweakGroupSectionHeader.identifier) as! TweakGroupSectionHeader
-        headerView.tweakGroup = tweakCollection.sortedTweakGroups[section]
-        headerView.delegate = self
-        return headerView
-    }
+	
+	private static let sectionFooterHeight: CGFloat = 27
+	
+	internal func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+		return TweakCollectionViewController.sectionFooterHeight
+	}
+	
+	internal func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+		return TweakGroupSectionHeader.height
+	}
+	
+	internal func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+		let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: TweakGroupSectionHeader.identifier) as! TweakGroupSectionHeader
+		headerView.tweakGroup = tweakCollection.sortedTweakGroups[section]
+		headerView.delegate = self
+		return headerView
+	}
 
 	func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
 		return true
+	}
+
+	@available(iOS 11.0, *)
+	public func tableView(_ tableView: UITableView, 
+						  trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration?
+	{
+		let tweak = tweakAtIndexPath(indexPath)
+
+		switch tweak.tweakViewDataType {
+
+		case .integer, .int8, .int16, .int32, .int64, .uInt8, .uInt16, .uInt32, .uInt64, .cgFloat, .double:
+
+			var title = ""
+		
+			switch self.tweakStore.editingStyle(forTweak: tweak) {
+			case .stepper:
+				title = "use slider"
+			case .slider:
+				title = "use stepper"
+			}
+					
+			let action = UIContextualAction(style: .destructive,
+											title: title)
+			{ action, view, handler in
+				switch self.tweakStore.editingStyle(forTweak: tweak) {
+				case .stepper:
+					self.tweakStore.set(editingStyle: .slider, forTweak: tweak)
+
+				case .slider:
+					self.tweakStore.set(editingStyle: .stepper, forTweak: tweak)
+				}
+
+				self.tableView.reloadData()
+				handler(false)
+			}
+			action.backgroundColor = .green
+
+			return UISwipeActionsConfiguration(actions: [action]) // don't want the defaults
+		case .uiColor, .stringList, .action, .date, .boolean, .string:
+			break
+		}
+		
+		return UISwipeActionsConfiguration(actions: [])
 	}
 }
 
@@ -176,7 +223,7 @@ extension TweakCollectionViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return tweakCollection.sortedTweakGroups[section].tweaks.count
 	}
-
+    
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let tweak = tweakAtIndexPath(indexPath)
 
@@ -212,6 +259,12 @@ extension TweakCollectionViewController: TweakColorEditViewControllerDelegate {
 
 extension TweakCollectionViewController: StringOptionViewControllerDelegate {
 	func stringOptionViewControllerDidPressDismissButton(_ tweakSelectionViewController: StringOptionViewController) {
+		self.delegate.tweakCollectionViewControllerDidPressDismissButton(self)
+	}
+}
+
+extension TweakCollectionViewController: DatePickerViewControllerDelegate {
+	func datePickerViewControllerDidPressDismissButton(_ tweakSelectionViewController: DatePickerViewController) {
 		self.delegate.tweakCollectionViewControllerDidPressDismissButton(self)
 	}
 }
@@ -304,6 +357,8 @@ fileprivate final class TweakGroupSectionHeader: UITableViewHeaderFooterView {
 	}
 
 	@objc private func floatingButtonTapped() {
-		delegate!.tweakGroupSectionHeaderDidPressFloatingButton(self)
+		if let delegate = delegate {
+			delegate.tweakGroupSectionHeaderDidPressFloatingButton(self)
+		}
 	}
 }
