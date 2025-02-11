@@ -106,8 +106,10 @@ public class AutomaticTweaks: TweakLibraryType {
      #endif
     */  
     public static func window(from window: UIWindow?,
-                              gestureType: TweakWindow.GestureType = .shake) -> UIWindow
+                              gestureType: TweakWindow.GestureType = .shake,
+                              tweaksEnabled: Bool) -> UIWindow
     {
+        self.tweaksEnabled = tweaksEnabled
         let tweakWindow = TweakWindow(frame: UIScreen.main.bounds,
                                       gestureType: gestureType,
                                       tweakStore: self.defaultStore)
@@ -118,6 +120,8 @@ public class AutomaticTweaks: TweakLibraryType {
         return tweakWindow
     }
 
+    public static var tweaksEnabled = false 
+    
     /*
      This default store of tweaks is assembled at runtime from a list of 
      all 'classes' that conform to the AutomaticTweakList protocol, from the ObjC runtime.
@@ -147,13 +151,6 @@ public class AutomaticTweaks: TweakLibraryType {
                 }
             }
         }
-
-        #if DEBUG
-            let tweaksEnabled: Bool = true
-        #else
-            // No tweaks in production
-            let tweaksEnabled: Bool = false
-        #endif
 
         let store = TweakStore(
             tweaks: allTweaks.map(AnyTweak.init),
