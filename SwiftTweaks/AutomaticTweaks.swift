@@ -154,7 +154,7 @@ public class AutomaticTweaks: TweakLibraryType {
 
         let store = TweakStore(
             tweaks: allTweaks.map(AnyTweak.init),
-            enabled: tweaksEnabled
+            enabled: true
         )
 
         return store
