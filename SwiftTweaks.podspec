@@ -20,5 +20,5 @@ Pod::Spec.new do |s|
   s.resources = "SwiftTweaks/*.xcassets"
   
   s.ios.framework = 'UIKit'
-
+  s.swift_version = '5.0'
 end
