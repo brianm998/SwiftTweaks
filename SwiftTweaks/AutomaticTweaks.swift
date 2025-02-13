@@ -74,6 +74,7 @@ fileprivate class ListViewTweaks: AutomaticTweakList {
 }
 
 */
+
 public class AutomaticTweaks: TweakLibraryType {
 
     /*
@@ -107,16 +108,24 @@ public class AutomaticTweaks: TweakLibraryType {
     */  
     public static func window(from window: UIWindow?,
                               gestureType: TweakWindow.GestureType = .shake,
+                              tweakList: [AutomaticTweakList.Type]? = nil,
                               tweaksEnabled: Bool) -> UIWindow
     {
         self.tweaksEnabled = tweaksEnabled
+        // VVV this is the slow part on debug for some yet unknown reason
+        // timing inside this VVV init is fast, but timing around it here is
+        // 20+ seconds :(
         let tweakWindow = TweakWindow(frame: UIScreen.main.bounds,
                                       gestureType: gestureType,
                                       tweakStore: self.defaultStore)
         if let rvc = window?.rootViewController {
             tweakWindow.rootViewController = rvc
         }
-        self.setup()
+        if let tweakList {
+            self.setup(tweakList: tweakList)
+        } else {
+            self.automaticSetup()
+        }
         return tweakWindow
     }
 
@@ -160,7 +169,16 @@ public class AutomaticTweaks: TweakLibraryType {
         return store
     }()
 
-    public static func setup() {
+
+    public static func setup(tweakList: [AutomaticTweakList.Type]) {
+        for tweak in tweakList {
+            if let setupClass = tweak.tweakList as? AutomaticTweakSetup {
+                setupClass.setup()
+            }
+        }
+    }
+    
+    public static func automaticSetup() {
         // grab class list that conforms to AutomaticTweakSetup protocol from the objc runtime 
         let tweakLists = listClasses { $0.compactMap { $0 as? AutomaticTweakSetup.Type } }
 
@@ -234,6 +252,8 @@ public extension Tweak where T == StringOption {
         }
     }
 }
+
+
 
 // black magic from the objc runtime
 fileprivate func listClasses<T>(_ body: (UnsafeBufferPointer<AnyClass>) throws -> T) rethrows -> T {
