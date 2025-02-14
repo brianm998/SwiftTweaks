@@ -112,6 +112,9 @@ public class AutomaticTweaks: TweakLibraryType {
                               tweaksEnabled: Bool) -> UIWindow
     {
         self.tweaksEnabled = tweaksEnabled
+        if let tweakList {
+            AutomaticTweaks.tweakList = tweakList
+        }
         // VVV this is the slow part on debug for some yet unknown reason
         // timing inside this VVV init is fast, but timing around it here is
         // 20+ seconds :(
@@ -129,6 +132,8 @@ public class AutomaticTweaks: TweakLibraryType {
         return tweakWindow
     }
 
+    private static var tweakList: [AutomaticTweakList.Type]? = nil
+    
     public static var tweaksEnabled = false 
     
     /*
@@ -142,8 +147,13 @@ public class AutomaticTweaks: TweakLibraryType {
     public static let defaultStore: TweakStore = {
         var allTweaks: [TweakType] = []
 
+        var tweakLists: [AutomaticTweakList.Type] = []
+        if let tweakList = AutomaticTweaks.tweakList {
+            tweakLists = tweakList
+        } else {
         // grab class list that conforms to AutomaticTweakList protocol from the objc runtime 
-        let tweakLists = listClasses { $0.compactMap { $0 as? AutomaticTweakList.Type } }
+            tweakLists = listClasses { $0.compactMap { $0 as? AutomaticTweakList.Type } }
+        }
 
         for tweakList in tweakLists {
             let mirror = Mirror(reflecting: tweakList.tweakList)
